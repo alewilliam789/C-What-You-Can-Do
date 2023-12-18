@@ -1,1 +1,4 @@
-/MergeSort
+./*/*
+.ccls-cache
+!./*/*.c
+!./*/Makefile

@@ -75,6 +75,10 @@ int quickselect(int input_array[],int beginning, int end, int n_largest) {
 
 int main() {
   int sample_array[] = {1,9,2,8,3,7,4,6,5};
+
+  int seventh_largest = quickselect(sample_array,0,8,7);
+
+  assert(seventh_largest == 7);
   
   int second_largest = quickselect(sample_array,0,8,2);
   
@@ -84,6 +88,13 @@ int main() {
   int median = quickselect(sample_array,0,8,5);
 
   assert(median == 5);
+
+
+  int another_array[] = {6,62,20,33,2};
+
+  int fourth_largest = quickselect(another_array,0,4,4);
+
+  assert(fourth_largest == 33);
 
   return 0;
 }

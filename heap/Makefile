@@ -6,7 +6,7 @@ output: heap.c heap.test.c
 	gcc -g heap.c heap.test.c
 
 debug: Heap
-	gdb ./Heap
+	gdb a.out
 
 clean : 
 	rm Heap heap.o heap.test.o a.out

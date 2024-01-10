@@ -3,33 +3,30 @@
 #include <assert.h>
 #include "lexer.h"
 
-
-int main() {
+void file_test(char* file_path, int assert_value) {
   FILE* current_file;
 
-  char* test_file = "tests/json-test.json";
+  current_file = fopen(file_path, "r");
 
-  current_file = fopen(test_file, "r");
+  assert(current_file != NULL);
 
-  if(current_file == NULL) {
-    return 1;
-  }
+  assert(json_lexer(current_file) == assert_value);
+  fclose(current_file);
+};
 
-  assert(json_lexer(current_file) == 0);
+int main() {
 
+  char* test_file= "tests/json-test.json";
+
+  file_test(test_file,0);
+  
   test_file = "tests/not-test.json";
 
-  fclose(current_file);
+  file_test(test_file,1);
 
-  current_file = fopen(test_file, "r");
+  test_file = "tests/data-test.json";
 
-  if(current_file == NULL) {
-    return 1;
-  }
-
-  assert(json_lexer(current_file) == 1);
-
-  fclose(current_file);
+  file_test(test_file,0);
 
   return 0;
 

@@ -4,14 +4,9 @@
 
 
 
-
-
-
-
-
 int main() {
 
-  struct HashTable *a = malloc(sizeof(struct HashTable));
+  HashTable *a = malloc(sizeof(HashTable));
 
   a->init = hashtable_init;
   a->destroy = hashtable_destroy;
@@ -19,7 +14,7 @@ int main() {
   a->init(a,10);
 
   // Can store a string
-  struct HashObject stringer;
+  HashObject stringer;
   stringer.type = STRING;
   stringer.value.string = "Hello World";
   stringer.key = "first";
@@ -27,7 +22,7 @@ int main() {
 
   a->methods->insert(a,&stringer);
   
-  struct HashObject *stored = a->methods->get(a, stringer.key, stringer.key_length);
+  HashObject *stored = a->methods->get(a, stringer.key, stringer.key_length);
   assert(stored->type == stringer.type);
   assert(stored->value.string[0] == stringer.value.string[0]);
   assert(stored->value.string[1] == stringer.value.string[1]);
@@ -35,7 +30,7 @@ int main() {
 
   // Can store a integer array
   int integers[] = {1,2,3,4,5};
-  struct HashObject intarrer;
+  HashObject intarrer;
   intarrer.type = INT_ARRAY;
   intarrer.value.int_array = integers;
   intarrer.key = "second";
@@ -52,7 +47,7 @@ int main() {
 
   
   // Can store a int
-  struct HashObject inter;
+  HashObject inter;
   inter.type = INT;
   inter.value.integer= 1;
   inter.key = "third";
@@ -71,7 +66,7 @@ int main() {
   struct RandomObject randy;
   randy.nothing = 0;
 
-  struct HashObject structer;
+  HashObject structer;
   structer.type = STRUCT;
   structer.value.struc = &randy;
   structer.key = "fourth";
@@ -99,7 +94,6 @@ int main() {
   a->destroy(a);
 
   free(a);
-
 
   return 1;
 }

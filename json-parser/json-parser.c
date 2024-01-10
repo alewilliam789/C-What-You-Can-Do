@@ -14,8 +14,8 @@ int main(int argc, char** argv) {
 
     int result = json_lexer(current_file);
 
-    
-
     fclose(current_file);
+
+    printf("%i",result);
     return result;
 }

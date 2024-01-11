@@ -1,29 +1,36 @@
 #ifndef HEAP_H
 #define HEAP_H
 
+#include <stdlib.h>
+
+typedef struct Heap Heap;
+typedef struct heap_operations heap_operations;
+
+enum heap_property {MIN, MAX};
+
 struct Heap {
   
   // Property is 1 for Min Heap and 2 Max Heap
-  void (*init) (struct Heap *self, unsigned int heap_size, int property);
+  void (*init) (Heap* self, size_t heap_size, enum heap_property property);
   // Destroys all internally malloced properties.  
-  void (*destroy) (struct Heap *self);
+  void (*destroy) (Heap* self);
   // To determine whether it's a min or max property
-  signed int property_flag;
-  const struct heap_operations *methods;
-  int length;
-  int private_size;
-  float *H;
+  enum heap_property property_flag;
+  const heap_operations* methods;
+  size_t length;
+  size_t private_size;
+  float* H;
 };
 
 struct heap_operations {
-  void (*insert) (struct Heap *self, float elt);
-  float (*pop) (struct Heap *self);
-  void (*replace) (struct Heap *self, float elt);
-  void (*heapify) (struct Heap *self, float input[], int input_length);
+  void (*insert) (Heap* self, float elt);
+  float (*pop) (Heap* self);
+  void (*replace) (Heap* self, float elt);
+  void (*heapify) (Heap* self, float input[], size_t input_length);
 };
 
 
-void heap_init(struct Heap *self, unsigned int heap_size, int property);
-void heap_destroy(struct Heap *self);
+void heap_init(Heap* self, size_t heap_size, enum heap_property property);
+void heap_destroy(Heap* self);
 
 #endif

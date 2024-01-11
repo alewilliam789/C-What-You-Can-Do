@@ -1,7 +1,5 @@
 #include <assert.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include "tree.h"
 
 bool node_peek(TreeNode* node, int32_t key) {

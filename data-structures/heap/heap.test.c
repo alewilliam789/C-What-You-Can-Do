@@ -1,6 +1,4 @@
 #include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "heap.h"
 
 
@@ -9,7 +7,7 @@
 int main(){
   
   // Object creation
-  struct Heap *a = malloc(sizeof(struct Heap));
+  Heap *a = malloc(sizeof(Heap));
   a->init = &heap_init;
   a->destroy = &heap_destroy;
   
@@ -75,7 +73,7 @@ int main(){
   free(a);
 
 
- struct Heap *b = malloc(sizeof(struct Heap));
+ Heap *b = malloc(sizeof(Heap));
 
  b->init= &heap_init;
  b->destroy = &heap_destroy;

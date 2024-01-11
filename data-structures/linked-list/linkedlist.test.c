@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <stdlib.h>
 #include "linkedlist.h"
 
 
@@ -10,7 +9,7 @@ int main() {
 
 
   // Object creation
-  struct LinkedList *a = malloc(sizeof(struct LinkedList));
+  LinkedList *a = malloc(sizeof(LinkedList));
   a->init = &linked_list_init;
   a->destroy = &linked_list_destroy;
 
@@ -53,7 +52,7 @@ int main() {
   a->destroy(a);
   free(a);
 
-  struct LinkedList *b = malloc(sizeof(struct LinkedList));
+  LinkedList *b = malloc(sizeof(LinkedList));
   b->init = &linked_list_init;
   b->destroy = &linked_list_destroy;
 

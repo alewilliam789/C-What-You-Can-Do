@@ -1,36 +1,42 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct Node Node;
 
 struct Node {
   int value;
-  struct Node *next;
-  struct Node *previous;
+  Node* next;
+  Node* previous;
 };
 
+typedef struct LinkedList LinkedList;
+typedef struct linked_list_operations linked_list_operations;
 
 struct LinkedList {
   
-  void (*init) (struct LinkedList *self, unsigned int linked_list_size);  
-  void (*destroy) (struct LinkedList *self);
-  const struct linked_list_operations *methods;
-  int length;
-  int private_size;
-  struct Node *head;
-  struct Node *tail;
+  void (*init) (LinkedList* self, size_t linked_list_size);  
+  void (*destroy) (LinkedList* self);
+  const linked_list_operations* methods;
+  size_t length;
+  size_t private_size;
+  Node* head;
+  Node* tail;
 };
 
 struct linked_list_operations {
-  void (*insert) (struct LinkedList *self,int elt);
-  void (*insertAt) (struct LinkedList *self, int elt, int index);
-  int (*pop) (struct LinkedList *self);
-  int (*removeAt) (struct LinkedList *self, int index);
-  int (*get) (struct LinkedList *self, int index);
-  void (*fromArray) (struct LinkedList *self, int input_array[],int length);
+  void (*insert) (LinkedList* self,int elt);
+  void (*insertAt) (LinkedList* self, int elt, int index);
+  int (*pop) (LinkedList* self);
+  int (*removeAt) (LinkedList* self, int index);
+  int (*get) (LinkedList* self, int index);
+  void (*fromArray) (LinkedList* self, int input_array[],size_t length);
 };
 
 
-void linked_list_init(struct LinkedList *self, unsigned int linked_list_size);
-void linked_list_destroy(struct LinkedList *self);
+void linked_list_init(LinkedList* self, size_t linked_list_size);
+void linked_list_destroy(LinkedList* self);
 
 #endif

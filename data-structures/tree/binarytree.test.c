@@ -16,11 +16,6 @@ int main(){
   first.integer = 1;
   first.value_length = 1;
   
-  NodeValue second;
-  second.type = INT;
-  second.integer = 2;
-  second.value_length = 1;
-
   NodeValue third;
   third.type = INT;
   third.integer = 3;
@@ -35,11 +30,6 @@ int main(){
   fifth.type = INT;
   fifth.integer = 5;
   fifth.value_length = 1;
-
-  NodeValue sixth;
-  sixth.type = INT;
-  sixth.integer = 6;
-  sixth.value_length = 1;
 
   NodeValue seventh;
   seventh.type = INT;

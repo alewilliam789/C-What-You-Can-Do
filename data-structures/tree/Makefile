@@ -1,11 +1,21 @@
-binarytree : binarytree.c binarytree.test.c
-	gcc -g binarytree.c binarytree.test.c
+binary-test : binarytree.c binarytree.test.c
+	gcc -isystem./include -Wall -pedantic -Werror -Wextra -g binarytree.test.c binarytree.c
 
-redblack : redblacktree.c redblacktree.test.c
-	gcc -g redblacktree.c redblacktree.test.c
+binary-library : binarytree.c
+	gcc -isystem./include -c -Wall -pedantic -Werror -Wextra -fPIC binarytree.c
+	gcc -shared -o libtree.so tree.o
+	- rm tree.o
+	mv ./libtree.so ./lib
+
+binary-json : binarytree.c binarytree.test.c
+	- rm compile_commands.json
+	bear -- make binary-test
+	- rm -r a.out
+
 
 debug : a.out
 	gdb a.out
 
-clean : a.out
-	rm a.out
+clean : 
+	- rm a.out
+	- rm ./lib/*

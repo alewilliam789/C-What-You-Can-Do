@@ -16,7 +16,7 @@ bool node_peek(TreeNode* node, int32_t key) {
   else {
     return false;
   }
-};
+}
 
 void node_swap(Tree* self, TreeNode* parent_node, TreeNode* child_node, TreeNode* swap_node) {
 
@@ -52,7 +52,7 @@ void node_swap(Tree* self, TreeNode* parent_node, TreeNode* child_node, TreeNode
   if(swap_node->right != NULL) {
     swap_node->right->parent = swap_node;
   }
-};
+}
 
 TreeNode* find_predecessor(TreeNode* node) {
   TreeNode* current_node = node->right;
@@ -65,7 +65,7 @@ TreeNode* find_predecessor(TreeNode* node) {
     }
   }
   return current_node;
-};
+}
 
 TreeNode* tree_walk(TreeNode* node, int32_t key) {
   
@@ -81,7 +81,7 @@ TreeNode* tree_walk(TreeNode* node, int32_t key) {
   }
 
   return current_node;
-};
+}
 
 
 bool tree_insert(Tree* self, NodeValue* value, int32_t key) {
@@ -117,7 +117,7 @@ bool tree_insert(Tree* self, NodeValue* value, int32_t key) {
   }
 
   return true;
-};
+}
 
 
 bool tree_remove(Tree* self, int32_t key) {
@@ -164,7 +164,7 @@ bool tree_remove(Tree* self, int32_t key) {
   free(found_node);
 
   return true;
-};
+}
 
 
 NodeValue* tree_find(Tree* self, int32_t key) {
@@ -176,7 +176,7 @@ NodeValue* tree_find(Tree* self, int32_t key) {
   }
 
   return NULL; 
-};
+}
 
 
 void tree_init(Tree* self, size_t tree_size) {
@@ -196,10 +196,10 @@ void tree_init(Tree* self, size_t tree_size) {
   methods->find = tree_find;
 
   self->methods = methods;
-};
+}
 
 void tree_destroy(Tree *self) {
   
   free((tree_operations*)self->methods);
 
-};
+}

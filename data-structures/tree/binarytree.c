@@ -18,6 +18,7 @@ bool node_peek(TreeNode* node, int32_t key) {
   }
 }
 
+
 void node_swap(Tree* self, TreeNode* parent_node, TreeNode* child_node, TreeNode* swap_node) {
 
   swap_node->parent = parent_node;
@@ -54,6 +55,7 @@ void node_swap(Tree* self, TreeNode* parent_node, TreeNode* child_node, TreeNode
   }
 }
 
+
 TreeNode* find_predecessor(TreeNode* node) {
   TreeNode* current_node = node->right;
   while(true) {
@@ -66,6 +68,7 @@ TreeNode* find_predecessor(TreeNode* node) {
   }
   return current_node;
 }
+
 
 TreeNode* tree_walk(TreeNode* node, int32_t key) {
   
@@ -91,6 +94,10 @@ bool tree_insert(Tree* self, NodeValue* value, int32_t key) {
   }
 
   TreeNode* new_node = malloc(sizeof(TreeNode));
+  if(new_node == NULL) {
+    return false;
+  }
+
   new_node->key = key;
   new_node->value = *value;
   new_node->left = NULL;
@@ -179,9 +186,18 @@ NodeValue* tree_find(Tree* self, int32_t key) {
 }
 
 
+static const tree_operations tree_methods = {
+  .insert = tree_insert,
+  .remove = tree_remove,
+  .find = tree_find
+};
+
+
 void tree_init(Tree* self, size_t tree_size) {
 
   assert(tree_size > 0);
+
+   
 
   self->private_size = tree_size;
 
@@ -189,17 +205,22 @@ void tree_init(Tree* self, size_t tree_size) {
 
   self->entries = 0;
 
-  tree_operations* methods = malloc(sizeof(tree_operations));
-
-  methods->insert = tree_insert;
-  methods->remove = tree_remove;
-  methods->find = tree_find;
-
-  self->methods = methods;
+  self->methods = &tree_methods;
 }
 
-void tree_destroy(Tree *self) {
-  
-  free((tree_operations*)self->methods);
 
+void inorder_tree_free(TreeNode* node) {
+  if(node != NULL) {
+    TreeNode* left_child = node->left;
+    TreeNode* right_child = node->right;
+
+    inorder_tree_free(left_child);
+    free(node);
+    inorder_tree_free(right_child);
+  }
+}
+
+
+void tree_destroy(Tree* self) {
+  inorder_tree_free(self->root);
 }

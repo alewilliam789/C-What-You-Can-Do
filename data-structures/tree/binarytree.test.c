@@ -4,11 +4,12 @@
 
 int main(){
 
-  Tree* a = malloc(sizeof(Tree));
-  a->init = tree_init;
-  a->destroy = tree_destroy;
+  Tree a = {
+    .init = tree_init,
+    .destroy = tree_destroy
+  };
 
-  a->init(a,10);
+  a.init(&a,10);
 
   // Can insert elements
   NodeValue first;
@@ -46,61 +47,63 @@ int main(){
   nineth.integer = 9;
   nineth.value_length = 1;
 
-  bool outcome = a->methods->insert(a,&fifth,5);
+  bool outcome = a.methods->insert(&a,&fifth,5);
   assert(outcome == true);
 
-  outcome = a->methods->insert(a,&third,3);
+  outcome = a.methods->insert(&a,&third,3);
   assert(outcome == true);
 
-  outcome = a->methods->insert(a,&eigth,8);
+  outcome = a.methods->insert(&a,&eigth,8);
   assert(outcome == true);
 
-  outcome = a->methods->insert(a,&fourth,4);
+  outcome = a.methods->insert(&a,&fourth,4);
   assert(outcome == true);
 
-  outcome = a->methods->insert(a,&seventh,7);
+  outcome = a.methods->insert(&a,&seventh,7);
   assert(outcome == true);
 
-  outcome = a->methods->insert(a,&first,1);
+  outcome = a.methods->insert(&a,&first,1);
   assert(outcome == true);
 
-  outcome = a->methods->insert(a,&nineth,9);
+  outcome = a.methods->insert(&a,&nineth,9);
   assert(outcome == true);
 
   // Can retrieve elements
-  NodeValue* result = a->methods->find(a,5);
+  NodeValue* result = a.methods->find(&a,5);
   assert(result->type == INT);
   assert(result->integer == 5);
 
-  result = a->methods->find(a,1);
+  result = a.methods->find(&a,1);
   assert(result->type == INT);
   assert(result->integer == 1);
 
-  result = a->methods->find(a,4);
+  result = a.methods->find(&a,4);
 
-  result = a->methods->find(a,7);
+  result = a.methods->find(&a,7);
   assert(result->type == INT);
   assert(result->integer == 7);
 
-  result = a->methods->find(a,9);
+  result = a.methods->find(&a,9);
   assert(result->type == INT);
   assert(result->integer == 9);
 
   // Can delete elements
   // Predecessor delete
-  outcome = a->methods->remove(a,5);
+  outcome = a.methods->remove(&a,5);
   assert(outcome == true);
-  assert(a->methods->find(a,5) == NULL);
+  assert(a.methods->find(&a,5) == NULL);
 
   // Right Bubble Delete
-  outcome = a->methods->remove(a,3);
+  outcome = a.methods->remove(&a,3);
   assert(outcome == true);
-  assert(a->methods->find(a,3) == NULL);
+  assert(a.methods->find(&a,3) == NULL);
 
   // Left Bubble Delete
-  outcome = a->methods->remove(a,4);
+  outcome = a.methods->remove(&a,4);
   assert(outcome == true);
-  assert(a->methods->find(a,4) == NULL);
+  assert(a.methods->find(&a,4) == NULL);
+  
+  a.destroy(&a);
 
   return 1;
 }

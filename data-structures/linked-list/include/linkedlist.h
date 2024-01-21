@@ -28,11 +28,11 @@ struct LinkedList {
 
 struct linked_list_operations {
   void (*insert) (LinkedList* self,int elt);
-  void (*insertAt) (LinkedList* self, int elt, int index);
+  void (*insert_at) (LinkedList* self, size_t index, int elt);
   int (*pop) (LinkedList* self);
-  int (*removeAt) (LinkedList* self, int index);
-  int (*get) (LinkedList* self, int index);
-  void (*fromArray) (LinkedList* self, int input_array[],size_t length);
+  int (*remove_at) (LinkedList* self, size_t index);
+  int (*get) (LinkedList* self, size_t index);
+  void (*from_array) (LinkedList* self, int input_array[], size_t length);
 };
 
 

@@ -1,8 +1,8 @@
 #include "linkedlist.h"
 #include <assert.h>
 
-Node* node_walk(Node* head, int index) {
-  int i = 0;
+Node* node_walk(Node* head, size_t index) {
+  size_t i = 0;
   
    Node* next_node = head;
   while(i < index) {
@@ -44,8 +44,8 @@ void linked_list_insert(LinkedList* self, int elt) {
   }
 }
 
-void linked_list_insert_at(LinkedList* self, int index, int elt) {
-  int new_length = self->length+1;
+void linked_list_insert_at(LinkedList* self, size_t index, int elt) {
+  size_t new_length = self->length+1;
   Node* new_node = malloc(sizeof(Node));
   new_node->value = elt;
 
@@ -61,25 +61,24 @@ void linked_list_insert_at(LinkedList* self, int index, int elt) {
     self->head->next = self->tail;
   }
   else if(self->length-1 >= index && self->private_size >= new_length) {
-     Node* index_node = node_walk(self->head,index);
-     Node* previous_node = index_node->previous;
-    previous_node->next = new_node;
+    Node* index_node = node_walk(self->head,index);
+    new_node->previous = index_node->previous;
+    index_node->previous->next =new_node;
     index_node->previous = new_node;
-    new_node->previous = previous_node;
     new_node->next = index_node;
     self->length++;
   }
 }
 
 
-int linked_list_remove_at(LinkedList* self, int index) {
+int linked_list_remove_at(LinkedList* self, size_t index) {
 
   if(self->length-1 >= index) {
     Node* index_node = node_walk(self->head,index);
     int removed_value = index_node->value;
-    Node previous_node = *index_node->previous;
     Node* next_node = index_node->next;
-    previous_node.next = next_node;
+    next_node->previous = index_node->previous;
+    index_node->previous->next = next_node;
     free(index_node);
     self->length--;
     return removed_value;
@@ -105,6 +104,7 @@ int linked_list_pop(LinkedList* self) {
     previous_node->next = self->head;
     free(self->tail);
     self->tail = previous_node;
+    self->head->previous = self->tail;
     self->length--;
     return popped_value;
   }
@@ -117,7 +117,7 @@ int linked_list_pop(LinkedList* self) {
   return -1;
 }
 
-int linked_list_get(LinkedList* self, int index) {
+int linked_list_get(LinkedList* self, size_t index) {
   if(self->length-1 < index) {
     return -1;
   }
@@ -127,28 +127,26 @@ int linked_list_get(LinkedList* self, int index) {
 }
 
 void linked_list_from_array(LinkedList* self, int input_array[], size_t array_length) {
-  size_t new_length = self->length + array_length;
 
-  int i = 0;
+  size_t i = 0;
   while(i < array_length) {
     self->methods->insert(self,input_array[i]);
     i++;
   }
 }
 
+static const linked_list_operations linked_list_methods = {
+  .get = linked_list_get,
+  .insert = linked_list_insert,
+  .insert_at = linked_list_insert_at,
+  .pop = linked_list_pop,
+  .remove_at = linked_list_remove_at,
+  .from_array = linked_list_from_array
+};
+
 void linked_list_init(LinkedList* self, size_t size) {
 
-   linked_list_operations* linked_list_methods = malloc(sizeof(linked_list_operations));
-
-  linked_list_methods->insertAt = &linked_list_insert_at;
-  linked_list_methods->removeAt = &linked_list_remove_at;
-  linked_list_methods->pop = &linked_list_pop;
-  linked_list_methods->insert = &linked_list_insert;
-  linked_list_methods->get = &linked_list_get;
-  linked_list_methods->fromArray = &linked_list_from_array;
-
-
-  self->methods = linked_list_methods;
+  self->methods = &linked_list_methods;
 
   self->head = NULL;
   self->tail = NULL;
@@ -160,9 +158,8 @@ void linked_list_init(LinkedList* self, size_t size) {
 }
 
 void linked_list_destroy(LinkedList* self) {
-  free((linked_list_operations*)self->methods);
 
-  int i;
+  size_t i;
   for(i = 0; i < self->length-1; i++) {
     self->methods->pop(self);
   };

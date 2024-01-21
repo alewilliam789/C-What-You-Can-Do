@@ -62,22 +62,22 @@ void hashtable_remove (HashTable *self, char key[], size_t key_length) {
   self->entries--;
 }
 
+static const hashtable_operations hashtable_methods = {
+  .get = hashtable_get,
+  .insert = hashtable_insert,
+  .remove = hashtable_remove
+};
+
 
 
 void hashtable_init(HashTable *self, size_t hashtable_size) {
 
   assert (hashtable_size > 0);
 
-
   // If hashtable_size is the length of the data you are storing, then pass the size of the data and hashtable will never be loaded more than 2/3
   self->private_size = (3*hashtable_size)/2;
 
-  hashtable_operations *hashtable_methods = malloc(sizeof(hashtable_operations));
-  hashtable_methods->insert = hashtable_insert;
-  hashtable_methods->get = hashtable_get;
-  hashtable_methods->remove = hashtable_remove;
-
-  self->methods = hashtable_methods;
+  self->methods = &hashtable_methods;
 
   self->H = malloc(sizeof(void*) * self->private_size);
   
@@ -90,8 +90,6 @@ void hashtable_init(HashTable *self, size_t hashtable_size) {
   }
 }
 
-
 void hashtable_destroy(HashTable *self) {
-  free((hashtable_operations *) self->methods);
   free(self->H);
 }

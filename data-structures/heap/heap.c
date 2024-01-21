@@ -10,7 +10,7 @@ void swap(float passed_array[], int left_index, int right_index) {
 }
 
 void array_copy(float previous_array[], float new_array[], size_t previous_length) {
-  int i = 0;
+  size_t i = 0;
   while(i <= previous_length) {
     new_array[i] = previous_array[i];
     i++;
@@ -19,14 +19,16 @@ void array_copy(float previous_array[], float new_array[], size_t previous_lengt
 
 
 void bubble_up(float passed_array[], unsigned int index, enum heap_property property_flag, size_t length) {
-  if(index >= 0 && (index/2) >= 0) {
+    if(index == 0) {
+      return;
+    }
+
     int parent;
     if(index == 1 || index == 2) {
       parent = 0;
     }
     else {
       parent = length%2 != 0 ? ((index/2)-1 > 0 ? (index/2)-1 : 0) : (index/2);
-
     }
   
     if(passed_array[index] < passed_array[parent] && property_flag == MIN) {
@@ -40,10 +42,6 @@ void bubble_up(float passed_array[], unsigned int index, enum heap_property prop
     else {
       return;
     }
-  }
-  else {
-    return;
-  }
 }
 
 void bubble_down(float passed_array[], int index, enum heap_property property_flag, int length) {
@@ -55,17 +53,11 @@ void bubble_down(float passed_array[], int index, enum heap_property property_fl
         swap(passed_array,index,left_child);
         bubble_down(passed_array,left_child,property_flag,length);
       }
-      else {
-        return;
-      }
     }
     else if(passed_array[right_child] < passed_array[left_child] && property_flag == MIN) {
       if(passed_array[right_child] < passed_array[index]) {
         swap(passed_array,index,right_child);
         bubble_down(passed_array,right_child,property_flag, length);
-      }
-      else {
-        return;
       }
     }
     else if(passed_array[left_child] > passed_array[right_child] && property_flag == MAX) {
@@ -73,17 +65,11 @@ void bubble_down(float passed_array[], int index, enum heap_property property_fl
         swap(passed_array,index,left_child);
         bubble_down(passed_array,left_child,property_flag, length);
       }
-      else {
-        return;
-      }
     }
     else if(passed_array[right_child] > passed_array[left_child] && property_flag == MAX) {
       if(passed_array[right_child] > passed_array[index]) {
         swap(passed_array,index,right_child);
         bubble_down(passed_array,right_child,property_flag, length);
-      }
-      else {
-        return;
       }
     }
     else {
@@ -93,14 +79,9 @@ void bubble_down(float passed_array[], int index, enum heap_property property_fl
       else if(passed_array[left_child] > passed_array[index] && property_flag == MAX) {
         swap(passed_array,index, left_child);
       }  
-      else {
-        return;
-      }
     }
   }
-  else {
-    return;
-  }
+  return;
 }
 
 void heap_replace(Heap* self, float elt) {
@@ -133,7 +114,7 @@ float heap_pop(Heap* self) {
 
 void heap_insert(Heap* self, float elt) {
 
-  int new_length = self->length+1;
+  size_t new_length = self->length+1;
   float *new_heap = malloc(sizeof(float)*new_length);
 
   if(self->length == 0) {
@@ -191,16 +172,17 @@ void heapify(Heap* self, float unheaped_array[], size_t array_length) {
   }
 }
 
+static const heap_operations heap_methods = {
+  .insert = heap_insert,
+  .pop = heap_pop,
+  .replace = heap_replace,
+  .heapify = heapify
+};
+
 
 void heap_init(Heap* self, size_t size, enum heap_property property) {
 
-  heap_operations* heap_methods = malloc(sizeof(heap_operations));
-  heap_methods->insert = &heap_insert;
-  heap_methods->pop = &heap_pop;
-  heap_methods->replace = &heap_replace;
-  heap_methods->heapify = &heapify;
-
-  self->methods = heap_methods;
+  self->methods = &heap_methods;
 
   // If property flag is random, force to Max Heap
   if(property == MIN || property == MAX) {
@@ -223,5 +205,4 @@ void heap_init(Heap* self, size_t size, enum heap_property property) {
 
 void heap_destroy(Heap* self) {
   free(self->H);
-  free((heap_operations*) self->methods);
 }

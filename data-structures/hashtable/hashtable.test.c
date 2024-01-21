@@ -25,12 +25,12 @@ struct HashObject {
 
 int main() {
 
-  HashTable *a = malloc(sizeof(HashTable));
+  HashTable a = {
+    .init = hashtable_init,
+    .destroy = hashtable_destroy,
+  };
 
-  a->init = hashtable_init;
-  a->destroy = hashtable_destroy;
-
-  a->init(a,10);
+  a.init(&a,10);
 
   // Can store a string
   HashObject stringer;
@@ -39,9 +39,9 @@ int main() {
   stringer.key = "first";
   stringer.key_length = 5;
 
-  a->methods->insert(a,stringer.key,stringer.key_length,&stringer);
+  a.methods->insert(&a,stringer.key,stringer.key_length,&stringer);
   
-  HashObject *stored = a->methods->get(a, stringer.key, stringer.key_length);
+  HashObject *stored = a.methods->get(&a, stringer.key, stringer.key_length);
   assert(stored->type == stringer.type);
   assert(stored->value.string[0] == stringer.value.string[0]);
   assert(stored->value.string[1] == stringer.value.string[1]);
@@ -55,9 +55,9 @@ int main() {
   intarrer.key = "second";
   intarrer.key_length = 6;
 
-  a->methods->insert(a, intarrer.key, intarrer.key_length, &intarrer);
+  a.methods->insert(&a, intarrer.key, intarrer.key_length, &intarrer);
 
-  stored = a->methods->get(a,intarrer.key,intarrer.key_length);
+  stored = a.methods->get(&a,intarrer.key,intarrer.key_length);
   assert(stored->type == intarrer.type);
   assert(stored->value.integers[0] == 1);
   assert(stored->value.integers[1] == 2);
@@ -72,9 +72,9 @@ int main() {
   inter.key = "third";
   inter.key_length = 5;
 
-  a->methods->insert(a,inter.key,inter.key_length, &inter);
+  a.methods->insert(&a,inter.key,inter.key_length, &inter);
 
-  stored = a->methods->get(a,inter.key,inter.key_length);
+  stored = a.methods->get(&a,inter.key,inter.key_length);
   assert(stored->type == inter.type);
   assert(stored->value.integer == inter.value.integer);
 
@@ -91,28 +91,26 @@ int main() {
   structer.key = "fourth";
   structer.key_length = 6;
 
-  a->methods->insert(a,structer.key, structer.key_length, &structer);
+  a.methods->insert(&a,structer.key, structer.key_length, &structer);
 
-  stored = a->methods->get(a,structer.key,structer.key_length);
+  stored = a.methods->get(&a,structer.key,structer.key_length);
   assert(stored->type == STRUCT);
   assert(((struct RandomObject*)stored->value.structure)->nothing == randy.nothing);
   
   // Can remove any DictObject
-  a->methods->remove(a, stringer.key, stringer.key_length);
-  assert(a->methods->get(a,stringer.key,stringer.key_length) == NULL);
+  a.methods->remove(&a, stringer.key, stringer.key_length);
+  assert(a.methods->get(&a,stringer.key,stringer.key_length) == NULL);
 
-  a->methods->remove(a, intarrer.key, intarrer.key_length);
-  assert(a->methods->get(a,intarrer.key, intarrer.key_length) == NULL);
+  a.methods->remove(&a, intarrer.key, intarrer.key_length);
+  assert(a.methods->get(&a,intarrer.key, intarrer.key_length) == NULL);
 
-  a->methods->remove(a, inter.key, inter.key_length);
-  assert(a->methods->get(a,inter.key,inter.key_length) == NULL);
+  a.methods->remove(&a, inter.key, inter.key_length);
+  assert(a.methods->get(&a,inter.key,inter.key_length) == NULL);
 
-  a->methods->remove(a,structer.key,structer.key_length);
-  assert(a->methods->get(a,structer.key, structer.key_length) == NULL);
+  a.methods->remove(&a,structer.key,structer.key_length);
+  assert(a.methods->get(&a,structer.key, structer.key_length) == NULL);
 
-  a->destroy(a);
-
-  free(a);
+  a.destroy(&a);
 
   return 1;
 }

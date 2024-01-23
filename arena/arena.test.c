@@ -1,24 +1,27 @@
+#include <stdio.h>
 #include <assert.h>
 #include "arena.h"
 
+typedef struct Store Store;
 
+struct Store {
+  int value;
+};
 
 int main() {
   
-  Arena a = {
-    .init = arena_init,
-    .destroy = arena_destroy,
-    .alloc = arena_alloc
-  };
+  Arena a;
 
-  a.init(&a);
+  arena_init(&a);
 
-  Arena* b = a.alloc(&a, sizeof(Arena));
+  Store* b = a.alloc(&a, sizeof(Store));
 
-  b->init = arena_init;
-  b->destroy = arena_destroy;
+  b->value = 1;
 
-  a.destroy(&a);
+  printf("%i \n", b->value);
+
+
+  arena_destroy(&a);
 
   return 1;
 }

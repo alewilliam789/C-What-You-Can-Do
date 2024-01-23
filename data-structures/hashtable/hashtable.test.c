@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "hashtable.h"
+#include "arena.h"
 
 enum DataType { INT, DOUBLE, STRING, STRUCT };
 
@@ -25,12 +26,13 @@ struct HashObject {
 
 int main() {
 
-  HashTable a = {
-    .init = hashtable_init,
-    .destroy = hashtable_destroy,
-  };
+  Arena scratch;
 
-  a.init(&a,10);
+  arena_init(&scratch);
+
+  HashTable a;
+
+  hashtable_init(&a,10,&scratch);
 
   // Can store a string
   HashObject stringer;
@@ -110,7 +112,7 @@ int main() {
   a.methods->remove(&a,structer.key,structer.key_length);
   assert(a.methods->get(&a,structer.key, structer.key_length) == NULL);
 
-  a.destroy(&a);
+  arena_destroy(&scratch);
 
   return 1;
 }

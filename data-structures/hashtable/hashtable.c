@@ -34,14 +34,14 @@ void hashtable_insert (HashTable *self, char key[], size_t key_length, void* val
   else {
     size_t previous_size = self->private_size;
     self->private_size = (3*self->private_size)/2;
-    void** new_table = malloc(sizeof(value)* self->private_size);
+    void** new_table = self->arena->alloc(self->arena,sizeof(value)* self->private_size);
     hashtable_copy(new_table, self->H, previous_size);
     free(self->H);
     self->H = new_table;
   }
 }
 
- void* hashtable_get (HashTable *self, char key[], size_t key_length) {
+void* hashtable_get (HashTable *self, char key[], size_t key_length) {
   
   assert(key_length > 0);
   int hash_index = hash_key(key,key_length, self->private_size);
@@ -70,16 +70,20 @@ static const hashtable_operations hashtable_methods = {
 
 
 
-void hashtable_init(HashTable *self, size_t hashtable_size) {
+void hashtable_init(HashTable *self, size_t hashtable_size, Arena* arena) {
 
-  assert (hashtable_size > 0);
+  assert(hashtable_size > 0);
+
+  assert(arena != NULL);
+
+  self->arena = arena;
 
   // If hashtable_size is the length of the data you are storing, then pass the size of the data and hashtable will never be loaded more than 2/3
   self->private_size = (3*hashtable_size)/2;
 
   self->methods = &hashtable_methods;
 
-  self->H = malloc(sizeof(void*) * self->private_size);
+  self->H = self->arena->alloc(self->arena,sizeof(void*) * self->private_size);
   
   self->entries = 0;
   
@@ -88,8 +92,4 @@ void hashtable_init(HashTable *self, size_t hashtable_size) {
     self->H[i] = NULL;
     i++;
   }
-}
-
-void hashtable_destroy(HashTable *self) {
-  free(self->H);
 }

@@ -1,11 +1,12 @@
 test : linkedlist.c linkedlist.test.c
-	gcc -isystem./include -Wall -pedantic -Werror -Wextra -g linkedlist.test.c linkedlist.c
+	gcc -isystem./include -isystem../../arena/include -Wall -pedantic -Werror -Wextra -g linkedlist.test.c linkedlist.c -L../../lib -larena
 
-library : 
-	gcc -isystem./include -c -Wall -pedantic -Werror -Wextra -fPIC linkedlist.c
+library :
+	-rm ../../lib/liblinkedlist.so
+	gcc -isystem./include -isystem../../arena/include -c -Wall -pedantic -Werror -Wextra -fPIC linkedlist.c -L../../lib -larena
 	gcc -shared -o liblinkedlist.so linkedlist.o
 	- rm linkedlist.o
-	mv ./liblinkedlist.so ./lib
+	mv ./liblinkedlist.so ../../lib/
 
 json : linkedlist.c linkedlist.test.c
 	- rm compile_commands.json

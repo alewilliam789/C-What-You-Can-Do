@@ -14,10 +14,11 @@ Node* node_walk(Node* head, size_t index) {
 }
 
 
-void linked_list_insert(LinkedList* self, int elt) {
+void linked_list_insert(LinkedList* self, void* elt) {
 
   size_t new_length = self->length+1;
-  Node* new_node = malloc(sizeof(Node));
+  Node* new_node = self->arena->alloc(self->arena, sizeof(Node));
+  assert(new_node != NULL);
   new_node->value = elt;
 
 
@@ -27,7 +28,7 @@ void linked_list_insert(LinkedList* self, int elt) {
     self->head->previous = NULL;
     self->length = new_length;
   }
-  else if(self->length == 1 && self->private_size >= new_length) {
+  else if(self->length == 1) {
     self->head->next = new_node;
     self->head->previous = new_node;
     new_node->previous = self->head;
@@ -35,7 +36,7 @@ void linked_list_insert(LinkedList* self, int elt) {
     self->tail = new_node;
     self->length = new_length;
   }
-  else if (self->private_size >= new_length) {
+  else {
     self->tail->next = new_node;
     new_node->previous = self->tail;
     new_node->next = self->head;
@@ -44,9 +45,9 @@ void linked_list_insert(LinkedList* self, int elt) {
   }
 }
 
-void linked_list_insert_at(LinkedList* self, size_t index, int elt) {
+void linked_list_insert_at(LinkedList* self, size_t index, void* elt) {
   size_t new_length = self->length+1;
-  Node* new_node = malloc(sizeof(Node));
+  Node* new_node = self->arena->alloc(self->arena, sizeof(Node));
   new_node->value = elt;
 
   if(self->length == 0) {
@@ -60,7 +61,7 @@ void linked_list_insert_at(LinkedList* self, size_t index, int elt) {
     self->tail->previous = self->head;
     self->head->next = self->tail;
   }
-  else if(self->length-1 >= index && self->private_size >= new_length) {
+  else if(self->length-1 >= index) {
     Node* index_node = node_walk(self->head,index);
     new_node->previous = index_node->previous;
     index_node->previous->next =new_node;
@@ -71,68 +72,54 @@ void linked_list_insert_at(LinkedList* self, size_t index, int elt) {
 }
 
 
-int linked_list_remove_at(LinkedList* self, size_t index) {
+void* linked_list_remove_at(LinkedList* self, size_t index) {
 
   if(self->length-1 >= index) {
     Node* index_node = node_walk(self->head,index);
-    int removed_value = index_node->value;
+    void* removed_value = index_node->value;
     Node* next_node = index_node->next;
     next_node->previous = index_node->previous;
     index_node->previous->next = next_node;
-    free(index_node);
     self->length--;
     return removed_value;
   }
   else if(self->length-1 == index) {
     Node* removed_node = self->tail;
-    int removed_value = removed_node->value;
+    void* removed_value = removed_node->value;
     self->tail = removed_node->previous;
     self->tail->next = self->head;
-    free(removed_node);
     self->length--;
     return removed_value;
   }
-  else {
-    return -1;
-  }
+  
+  return NULL;
 }
 
-int linked_list_pop(LinkedList* self) {
+void* linked_list_pop(LinkedList* self) {
   if(self->length > 1) {
-    int popped_value = self->tail->value;
+    void* popped_value = self->tail->value;
     Node* previous_node = self->tail->previous;
     previous_node->next = self->head;
-    free(self->tail);
     self->tail = previous_node;
     self->head->previous = self->tail;
     self->length--;
     return popped_value;
   }
   else if(self->length == 1) {
-    int popped_value = self->head->value;
-    free(self->head);
+    void* popped_value = self->head->value;
     self->length--;
     return popped_value;
   }
-  return -1;
+  return NULL;
 }
 
-int linked_list_get(LinkedList* self, size_t index) {
+void* linked_list_get(LinkedList* self, size_t index) {
   if(self->length-1 < index) {
-    return -1;
+    return NULL;
   }
 
   Node* index_node = node_walk(self->head, index);
   return index_node->value;
-}
-
-void linked_list_from_array(LinkedList* self, int input_array[], size_t array_length) {
-
-  size_t i = 0;
-  while(i < array_length) {
-    self->methods->insert(self,input_array[i]);
-    i++;
-  }
 }
 
 static const linked_list_operations linked_list_methods = {
@@ -141,26 +128,17 @@ static const linked_list_operations linked_list_methods = {
   .insert_at = linked_list_insert_at,
   .pop = linked_list_pop,
   .remove_at = linked_list_remove_at,
-  .from_array = linked_list_from_array
 };
 
-void linked_list_init(LinkedList* self, size_t size) {
+void linked_list_init(LinkedList* self, Arena* arena) {
 
   self->methods = &linked_list_methods;
 
+  self->arena = arena;
+
   self->head = NULL;
   self->tail = NULL;
-  
-  assert(size > 0);
-    self->private_size = size;
 
   self->length = 0;
 }
 
-void linked_list_destroy(LinkedList* self) {
-
-  size_t i;
-  for(i = 0; i < self->length-1; i++) {
-    self->methods->pop(self);
-  };
-}

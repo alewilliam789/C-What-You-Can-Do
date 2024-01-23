@@ -1,69 +1,80 @@
 #include <assert.h>
 #include "linkedlist.h"
+#include "arena.h"
+
+typedef struct store store;
+
+struct store {
+  int value;
+};
 
 
 int main() {
 
-  // Object creation
-  LinkedList a = {
-    .init = linked_list_init,
-    .destroy = linked_list_destroy
-  };
+  Arena scratch;
+  arena_init(&scratch);
 
-  // Instantiate an empty linked list of size 5
-  a.init(&a,5);
-  assert(a.private_size == 5);
+  // Instantiate an empty linked list
+  LinkedList a;
+  linked_list_init(&a, &scratch);
 
   // Add a series of numbers to it
-  a.methods->insert(&a,1);
-  assert(a.methods->get(&a,0) == 1);
+  store first = {
+    .value = 1
+  };
 
-  a.methods->insert(&a,2);
-  assert(a.methods->get(&a,1) == 2);
+  a.methods->insert(&a,&first);
+  store* returned = a.methods->get(&a,0);
+  assert(returned->value == 1);
 
-  a.methods->insert(&a,3);
-  assert(a.methods->get(&a,2) == 3);
+  store second = {
+    .value = 2
+  };
+
+  a.methods->insert(&a,&second);
+  returned = a.methods->get(&a,1);
+  assert(returned->value == 2);
+
+  store third = {
+    .value = 3
+  };
+
+  a.methods->insert(&a,&third);
+  returned = a.methods->get(&a,2);
+  assert(returned->value == 3);
+
+  store fourth = {
+    .value = 4
+  };
   
-  a.methods->insert(&a,4);
-  assert(a.methods->get(&a,3) == 4);
+  a.methods->insert(&a,&fourth);
+  returned = a.methods->get(&a,3);
+  assert(returned->value == 4);
   
-  a.methods->insert(&a,5);
-  assert(a.methods->get(&a,4) == 5);
+  store fifth = {
+    .value = 5
+  };
 
+  a.methods->insert(&a,&fifth);
+  returned = a.methods->get(&a,4);
+  assert(returned->value == 5);
 
-  // Pop the last number
-  int fifth_value = a.methods->pop(&a);
-  assert(fifth_value == 5);
+  // Pop the last value
+  returned = a.methods->pop(&a);
+  assert(returned->value == 5);
   assert(a.length == 4); 
 
   // Remove 2
-  int removed_at_value = a.methods->remove_at(&a,1);
-  assert(removed_at_value == 2);
+  returned= a.methods->remove_at(&a,1);
+  assert(returned->value == 2);
   assert(a.length == 3);
 
 
   // Insert 2 at old spot
-  a.methods->insert_at(&a,1,2);
-  assert(a.methods->get(&a,1) == 2);
+  a.methods->insert_at(&a,1,&second);
+  returned = a.methods->get(&a,1);
+  assert(returned->value == 2);
 
-  a.destroy(&a);
-
-  LinkedList b = {
-    .init = linked_list_init,
-    .destroy = linked_list_destroy
-  };
-
-  b.init(&b,5);
-  assert(b.private_size == 5);
-
-  int sample_array[] = {1,2,3,4,5};
-  b.methods->from_array(&b,sample_array,5);
-  assert(b.methods->get(&b,0) == 1);
-  assert(b.methods->get(&b,1) == 2);
-  assert(b.methods->get(&b,2) == 3);
-  assert(b.methods->get(&b,3) == 4);
-  assert(b.methods->get(&b,4) == 5);
-
-  b.destroy(&b);
+  arena_destroy(&scratch);
 }
 

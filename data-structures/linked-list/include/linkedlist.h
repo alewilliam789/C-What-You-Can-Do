@@ -3,11 +3,12 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "arena.h"
 
 typedef struct Node Node;
 
 struct Node {
-  int value;
+  void* value;
   Node* next;
   Node* previous;
 };
@@ -15,28 +16,23 @@ struct Node {
 typedef struct LinkedList LinkedList;
 typedef struct linked_list_operations linked_list_operations;
 
-struct LinkedList {
-  
-  void (*init) (LinkedList* self, size_t linked_list_size);  
-  void (*destroy) (LinkedList* self);
-  const linked_list_operations* methods;
+struct LinkedList { 
   size_t length;
-  size_t private_size;
   Node* head;
   Node* tail;
-};
+  const linked_list_operations* methods;
+  Arena* arena;
+  };
 
 struct linked_list_operations {
-  void (*insert) (LinkedList* self,int elt);
-  void (*insert_at) (LinkedList* self, size_t index, int elt);
-  int (*pop) (LinkedList* self);
-  int (*remove_at) (LinkedList* self, size_t index);
-  int (*get) (LinkedList* self, size_t index);
-  void (*from_array) (LinkedList* self, int input_array[], size_t length);
+  void (*insert) (LinkedList* self, void* elt);
+  void (*insert_at) (LinkedList* self, size_t index, void* elt);
+  void* (*pop) (LinkedList* self);
+  void* (*remove_at) (LinkedList* self, size_t index);
+  void* (*get) (LinkedList* self, size_t index);
 };
 
 
-void linked_list_init(LinkedList* self, size_t linked_list_size);
-void linked_list_destroy(LinkedList* self);
+void linked_list_init(LinkedList* self, Arena* arena);
 
 #endif

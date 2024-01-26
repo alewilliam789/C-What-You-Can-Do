@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include "hashtable.h"
+#include "hash.h"
 
 void hashtable_copy(void** new_table, void** previous_table, size_t previous_size){
   size_t i = 0;
@@ -10,24 +11,9 @@ void hashtable_copy(void** new_table, void** previous_table, size_t previous_siz
   }
 }
 
-int hash_key(char string[], size_t string_length, size_t table_size) {
-  int hash = 0;
-  size_t i = 0;
-
-  assert(string_length > 0);
-
-  while (i <= string_length-1) {
-    // SDBM Hash Function
-    hash += (hash << 6) + (hash << 16) - hash + string[i];
-    i++;
-  }
-  return hash % table_size;
-}
-
-
 void hashtable_insert (HashTable *self, char key[], size_t key_length, void* value) {
   if(self->entries+1 <= self->private_size) {
-    int hash_index = hash_key(key, key_length, self->private_size);
+    int hash_index = SDBM(key, key_length) % self->private_size;
     self->H[hash_index] = value;
     self->entries++;
   }
@@ -44,7 +30,7 @@ void hashtable_insert (HashTable *self, char key[], size_t key_length, void* val
 void* hashtable_get (HashTable *self, char key[], size_t key_length) {
   
   assert(key_length > 0);
-  int hash_index = hash_key(key,key_length, self->private_size);
+  int hash_index = SDBM(key,key_length) % self->private_size;
 
   if(self->H[hash_index]) {
     return self->H[hash_index];
@@ -57,7 +43,7 @@ void* hashtable_get (HashTable *self, char key[], size_t key_length) {
 void hashtable_remove (HashTable *self, char key[], size_t key_length) {
   assert(key_length > 0);
 
-  int hash_index = hash_key(key, key_length, self->private_size);
+  int hash_index = SDBM(key, key_length) % self->private_size;
   self->H[hash_index] = NULL;
   self->entries--;
 }

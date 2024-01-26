@@ -28,7 +28,7 @@ int main() {
 
   Arena scratch;
 
-  arena_init(&scratch);
+  arena_init(&scratch,sizeof(HashTable) + sizeof(void*)*20);
 
   HashTable a;
 

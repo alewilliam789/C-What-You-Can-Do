@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "lexer.h"
+#include "parser.h"
+#include "scanner.h"
+
 
 void file_test(char* file_path, int assert_value) {
   FILE* current_file;
@@ -10,13 +12,13 @@ void file_test(char* file_path, int assert_value) {
 
   assert(current_file != NULL);
 
-  assert(json_lexer(current_file) == assert_value);
+  assert(json_scanner(current_file, file_path) == assert_value);
   fclose(current_file);
 };
 
 int main() {
 
-  char* test_file= "tests/json-test.json";
+  char* test_file= "tests/empty-test.json";
 
   file_test(test_file,0);
   
@@ -24,10 +26,9 @@ int main() {
 
   file_test(test_file,1);
 
-  test_file = "tests/data-test.json";
+  test_file = "tests/base-test.json";
 
   file_test(test_file,0);
 
   return 0;
-
 }

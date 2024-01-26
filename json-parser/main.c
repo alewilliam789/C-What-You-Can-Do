@@ -1,6 +1,8 @@
+#include <arena.h>
+#include <hashtable.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "lexer.h"
+#include "scanner.h"
 
 int main(int argc, char** argv) {
 
@@ -12,9 +14,10 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    int result = json_lexer(current_file);
+    int result = json_scanner(current_file,argv[1]);
 
     fclose(current_file);
+
 
     printf("%i",result);
     return result;

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "arena.h"
 
 
 typedef struct NodeValue NodeValue;
@@ -40,13 +41,12 @@ typedef struct Tree Tree;
 typedef struct tree_operations tree_operations;
 
 struct Tree {
-  void (*init) (Tree* self, size_t tree_size);
-  void (*destroy) (Tree* self);
   TreeNode* root;
   TreeNode* nil;
-  const tree_operations* methods;
   size_t private_size;
   size_t entries;
+  const tree_operations* methods;
+  Arena* arena;
 };
 
 struct tree_operations {
@@ -56,7 +56,6 @@ struct tree_operations {
 };
 
 
-void tree_init(Tree* self, size_t tree_size);
-void tree_destroy(Tree* self);
+void tree_init(Tree* self, Arena* arena, size_t private_size);
 
 #endif

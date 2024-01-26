@@ -1,3 +1,4 @@
+#include <arena.h>
 #include <assert.h>
 #include <stdint.h>
 #include "tree.h"
@@ -89,14 +90,10 @@ TreeNode* tree_walk(TreeNode* node, int32_t key) {
 
 bool tree_insert(Tree* self, NodeValue* value, int32_t key) {
 
-  if(self->entries+1 > self->private_size) {
-    return false;
-  }
+  assert(self->entries+1 <= self->private_size);
 
-  TreeNode* new_node = malloc(sizeof(TreeNode));
-  if(new_node == NULL) {
-    return false;
-  }
+  TreeNode* new_node = self->arena->alloc(self->arena, sizeof(TreeNode));
+  assert(new_node != NULL);
 
   new_node->key = key;
   new_node->value = *value;
@@ -110,6 +107,7 @@ bool tree_insert(Tree* self, NodeValue* value, int32_t key) {
   if(parent_node == NULL) {
     new_node->parent = NULL;
     self->root = new_node;
+    self->entries++;
     return true;
   }
   else {
@@ -122,12 +120,17 @@ bool tree_insert(Tree* self, NodeValue* value, int32_t key) {
   else if(new_node->key < parent_node->key) {
     parent_node->left = new_node;
   }
-
+  
+  self->entries++;
   return true;
 }
 
 
 bool tree_remove(Tree* self, int32_t key) {
+
+  if(self->entries == 0) {
+    return false;
+  }
   
   TreeNode* found_node = tree_walk(self->root,key);
 
@@ -167,9 +170,8 @@ bool tree_remove(Tree* self, int32_t key) {
     
     node_swap(self,parent_node,found_node,predecessor);
   }
-
-  free(found_node);
-
+  
+  self->entries--;
   return true;
 }
 
@@ -193,15 +195,16 @@ static const tree_operations tree_methods = {
 };
 
 
-void tree_init(Tree* self, size_t tree_size) {
+void tree_init(Tree* self, Arena* arena, size_t private_size) {
 
-  assert(tree_size > 0);
+  assert(arena != NULL);
+  assert(private_size > 0);
 
-   
-
-  self->private_size = tree_size;
+  self->arena = arena;
 
   self->root = NULL;
+
+  self->private_size = private_size;
 
   self->entries = 0;
 
@@ -218,9 +221,4 @@ void inorder_tree_free(TreeNode* node) {
     free(node);
     inorder_tree_free(right_child);
   }
-}
-
-
-void tree_destroy(Tree* self) {
-  inorder_tree_free(self->root);
 }

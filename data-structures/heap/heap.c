@@ -115,19 +115,17 @@ float heap_pop(Heap* self) {
 void heap_insert(Heap* self, float elt) {
 
   size_t new_length = self->length+1;
-  float *new_heap = malloc(sizeof(float)*new_length);
-
+  
   if(self->length == 0) {
-    new_heap[0] = elt;
-    self->H = new_heap;
+    self->H[0] = elt;
   }
   else if(new_length <= self->private_size) {
     self->H[new_length-1] = elt;
     bubble_up(self->H, new_length-1,self->property_flag,new_length);
     self->length++;
-    free(new_heap);
   }
   else {
+    float *new_heap = malloc(sizeof(float)*new_length);
     array_copy(self->H,new_heap, self->length-1);
     new_heap[new_length-1] = elt;
     bubble_up(new_heap, new_length-1, self->property_flag,new_length);
@@ -154,7 +152,7 @@ void heapify(Heap* self, float unheaped_array[], size_t array_length) {
   else {
     size_t new_length = self->length + array_length;
     
-    float* new_heap = malloc(sizeof(float)*new_length);
+    float* new_heap = self->arena->alloc(self->arena,sizeof(float)*new_length);
     array_copy(self->H,new_heap,self->length-1);
 
     size_t i = self->length;
@@ -165,7 +163,6 @@ void heapify(Heap* self, float unheaped_array[], size_t array_length) {
       i++;
       j++;
     }
-    free(self->H);
     self->H = new_heap;
     self->length =new_length;
     self->private_size = new_length;
@@ -181,6 +178,8 @@ static const heap_operations heap_methods = {
 
 
 void heap_init(Heap* self, size_t size, enum heap_property property) {
+
+  assert(self->arena != NULL);
 
   self->methods = &heap_methods;
 
@@ -198,11 +197,8 @@ void heap_init(Heap* self, size_t size, enum heap_property property) {
   }
   else {
     self->private_size = size;
+    self->H = malloc(sizeof(float));
   }
 
   self->length = 0;
-}
-
-void heap_destroy(Heap* self) {
-  free(self->H);
 }

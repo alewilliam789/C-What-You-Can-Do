@@ -12,7 +12,7 @@ struct store {
 int main() {
 
   Arena scratch;
-  arena_init(&scratch);
+  arena_init(&scratch, sizeof(store)*10+sizeof(Node)*10+sizeof(LinkedList));
 
   // Instantiate an empty linked list
   LinkedList a;

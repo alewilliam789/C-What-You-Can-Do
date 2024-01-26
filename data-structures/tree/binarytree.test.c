@@ -1,15 +1,17 @@
 #include <assert.h>
 #include <string.h>
 #include "tree.h"
+#include "arena.h"
 
 int main(){
 
-  Tree a = {
-    .init = tree_init,
-    .destroy = tree_destroy
-  };
+  Arena scratch;
 
-  a.init(&a,10);
+  arena_init(&scratch);
+
+  Tree a;
+
+  tree_init(&a,&scratch);
 
   // Can insert elements
   NodeValue first;
@@ -103,7 +105,7 @@ int main(){
   assert(outcome == true);
   assert(a.methods->find(&a,4) == NULL);
   
-  a.destroy(&a);
+  arena_destroy(&scratch);
 
   return 1;
 }

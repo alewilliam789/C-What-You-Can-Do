@@ -2,6 +2,7 @@
 #define HEAP_H
 
 #include <stdlib.h>
+#include "arena.h"
 
 typedef struct Heap Heap;
 typedef struct heap_operations heap_operations;
@@ -17,6 +18,7 @@ struct Heap {
   // To determine whether it's a min or max property
   enum heap_property property_flag;
   const heap_operations* methods;
+  Arena* arena;
   size_t length;
   size_t private_size;
   float* H;

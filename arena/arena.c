@@ -4,10 +4,10 @@
 #include "arena.h"
 
 
-void arena_init(Arena *self) {
+void arena_init(Arena *self, size_t private_size) {
   self->alloc = arena_alloc;
   self->current = 0;
-  self->private_size = 250000*sizeof(void*);
+  self->private_size = private_size;
   self->beginning = malloc(self->private_size);
   assert(self->beginning != NULL);
 }

@@ -7,6 +7,7 @@ library : arena.c
 	gcc -shared -o libarena.so arena.o
 	- rm arena.o
 	mv ./libarena.so ../lib/
+	cp ./include/arena.h ../lib/include
 
 json : arena.c arena.test.c
 	- rm compile_commands.json

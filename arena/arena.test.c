@@ -12,7 +12,7 @@ int main() {
   
   Arena a;
 
-  arena_init(&a);
+  arena_init(&a, 4E9);
 
   Store* b = a.alloc(&a, sizeof(Store));
 

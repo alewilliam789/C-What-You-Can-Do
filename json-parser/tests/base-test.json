@@ -1,4 +1,4 @@
 { 
   "string" : "Here is \" a string in JSON", 
-  "number" : 12345,
+  "number" : 12345
 }

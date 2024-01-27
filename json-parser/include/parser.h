@@ -48,6 +48,13 @@ enum JSONType {
   ARRAY
 };
 
+typedef struct ArrayData ArrayData;
+
+struct ArrayData {
+  JSONType data_type;
+  JSONData data;
+};
+
 typedef struct JSONPair JSONPair;
 
 struct JSONPair {

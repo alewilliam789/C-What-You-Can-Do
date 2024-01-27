@@ -45,7 +45,7 @@ int json_scanner(FILE* json_file, char* file_path) {
 
   arena_destroy(&arena);
 
-  if(json == NULL) {
+  if(json_buffer.error) {
     return 1;
   }
 

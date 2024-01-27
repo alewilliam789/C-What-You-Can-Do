@@ -17,18 +17,46 @@ void file_test(char* file_path, int assert_value) {
 };
 
 int main() {
-
+    
+  // Can handle empty JSON
   char* test_file= "tests/empty-test.json";
 
   file_test(test_file,0);
   
+  // Can handle non-json text without false positive
   test_file = "tests/not-test.json";
 
   file_test(test_file,1);
 
+  // Can parse strings and numbers
   test_file = "tests/base-test.json";
 
   file_test(test_file,0);
+
+  // Can parse nested json
+  test_file = "tests/nested-test.json";
+
+  file_test(test_file,0);
+
+  // Can parse array
+  test_file = "tests/array-test.json";
+
+  file_test(test_file,0);
+
+  // Can handle non-json text without false positive
+  test_file = "tests/not-test.json";
+
+  file_test(test_file,1);
+
+  // Can handle incorrect nested json
+  test_file = "tests/not-nested-test.json";
+
+  file_test(test_file, 1);
+
+  // Can handle incorrect array in json
+  test_file = "tests/not-array-test.json";
+
+  file_test(test_file, 1);
 
   return 0;
 }

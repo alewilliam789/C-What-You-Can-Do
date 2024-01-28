@@ -11,7 +11,7 @@ typedef struct JSONBuffer JSONBuffer;
 
 struct JSONBuffer {
   char* current_file;
-  int current_position;
+  size_t current_position;
   size_t file_size;
   bool error;
 };

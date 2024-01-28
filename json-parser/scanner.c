@@ -40,8 +40,11 @@ int json_scanner(FILE* json_file, char* file_path) {
   json_buffer.error = false;
 
   size_t test = fread(buffer,st.st_size,1,json_file);
+
+  assert(test == 1);
+
   json_buffer.current_file = buffer;
-  JSONObj* json = parse_json(&json_buffer, &arena);
+  parse_json(&json_buffer, &arena);
 
   arena_destroy(&arena);
 
@@ -50,4 +53,4 @@ int json_scanner(FILE* json_file, char* file_path) {
   }
 
   return 0;
-};
+}

@@ -34,6 +34,7 @@ union JSONData {
   JSONNum* num;
   LinkedList* str;
   JSONBool* boolean;
+  char* null;
   JSONObj* json;
   LinkedList* array;
 };
@@ -44,6 +45,7 @@ enum JSONType {
   NUM,
   STR,
   BOOL,
+  NUL,
   JSON,
   ARRAY
 };
@@ -68,10 +70,11 @@ struct JSONPair {
 
 
 JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena);
-void parse_key(JSONBuffer* json_buffer, JSONPair* current_pair);
+void parse_key(JSONBuffer* json_buffer, JSONPair* current_pair, char* optional_key);
 LinkedList* parse_array(JSONBuffer* json_buffer, Arena* arena);
 LinkedList* parse_string(JSONBuffer* json_buffer, Arena* arena);
 JSONNum* parse_number(JSONBuffer* json_buffer, Arena* arena);
+JSONBool* parse_bool(JSONBuffer* json_buffer, Arena* arena, char* boolean_value);
 
 #endif
 

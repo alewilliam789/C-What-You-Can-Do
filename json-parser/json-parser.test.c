@@ -14,7 +14,7 @@ void file_test(char* file_path, int assert_value) {
 
   assert(json_scanner(current_file, file_path) == assert_value);
   fclose(current_file);
-};
+}
 
 int main() {
     
@@ -23,12 +23,7 @@ int main() {
 
   file_test(test_file,0);
   
-  // Can handle non-json text without false positive
-  test_file = "tests/not-test.json";
-
-  file_test(test_file,1);
-
-  // Can parse strings and numbers
+  // Can parse strings, boolean, and numbers
   test_file = "tests/base-test.json";
 
   file_test(test_file,0);
@@ -45,6 +40,11 @@ int main() {
 
   // Can handle non-json text without false positive
   test_file = "tests/not-test.json";
+
+  file_test(test_file,1);
+
+  // Can detect faulty boolean data
+  test_file = "tests/not-boolean-test.json";
 
   file_test(test_file,1);
 

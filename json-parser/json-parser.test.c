@@ -48,6 +48,11 @@ int main() {
 
   file_test(test_file,1);
 
+  // Can detect faulty null data
+  test_file = "tests/not-null-test.json";
+
+  file_test(test_file,1);
+
   // Can handle incorrect nested json
   test_file = "tests/not-nested-test.json";
 

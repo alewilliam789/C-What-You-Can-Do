@@ -116,10 +116,17 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
         json_pair->value_exists = true;
         json_pair->current_value = false;
       }
-      else if(current_character == 'f' && json != NULL){
+      else if(current_character == 'f' && json != NULL) {
         json_pair->data.boolean = parse_bool(json_buffer, arena, "false");
         
         json_pair->data_type = BOOL;
+        json_pair->value_exists = true;
+        json_pair->current_value = false;
+      }
+      else if(current_character == 'n' && json != NULL) {
+        json_pair->data.null = parse_null(json_buffer, "null");
+
+        json_pair->data_type = NUL;
         json_pair->value_exists = true;
         json_pair->current_value = false;
       }
@@ -136,7 +143,7 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
           continue;
         }
       }
-      else if(current_character == '}' && json != NULL){
+      else if(current_character == '}' && json != NULL) {
         if(json_pair->key_length > 0 && json_pair->value_exists) {
           json->objects.methods->insert(&json->objects,json_pair->key, json_pair->key_length,json_pair);
         }
@@ -351,6 +358,14 @@ LinkedList* parse_array(JSONBuffer* json_buffer, Arena *arena) {
         array_member = arena->alloc(arena, sizeof(ArrayData));
         was_comma = false;
       }
+      else if(current_character == 'n') {
+        array_member->data_type = NUL;
+        array_member->data.null = parse_null(json_buffer, "null");
+        array->methods->insert(array, array_member);
+
+        array_member = arena->alloc(arena, sizeof(ArrayData));
+        was_comma = false;
+      }
     }
     else if(current_character == ',' && array->length != 0) {
       was_comma = true;
@@ -402,4 +417,25 @@ JSONBool* parse_bool(JSONBuffer* json_buffer, Arena* arena, char boolean_value[]
   json_buffer->current_position--;
   return json_bool;
 }
+
+void* parse_null(JSONBuffer* json_buffer, char* null_string) {
+  
+  char current_character;
+
+  for(int i = 0; i < 4; i++) {
+    current_character = json_buffer->current_file[json_buffer->current_position];
+    
+    if(current_character != null_string[i]) {
+      json_buffer->error = true;
+      return NULL;
+    }
+    
+  json_buffer->current_position++;
+  }
+
+  json_buffer->current_position--;
+  return NULL;
+}
+
+
 

@@ -34,7 +34,7 @@ union JSONData {
   JSONNum* num;
   LinkedList* str;
   JSONBool* boolean;
-  char* null;
+  void* null;
   JSONObj* json;
   LinkedList* array;
 };
@@ -75,6 +75,7 @@ LinkedList* parse_array(JSONBuffer* json_buffer, Arena* arena);
 LinkedList* parse_string(JSONBuffer* json_buffer, Arena* arena);
 JSONNum* parse_number(JSONBuffer* json_buffer, Arena* arena);
 JSONBool* parse_bool(JSONBuffer* json_buffer, Arena* arena, char* boolean_value);
+void* parse_null(JSONBuffer* json_buffer, char* null_string);
 
 #endif
 

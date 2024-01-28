@@ -38,6 +38,11 @@ int main() {
 
   file_test(test_file,0);
 
+  // Can parse a json array
+  test_file = "tests/json-array-test.json";
+
+  file_test(test_file,0);
+
   // Can handle non-json text without false positive
   test_file = "tests/not-test.json";
 

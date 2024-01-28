@@ -94,6 +94,9 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
         if(json == NULL) {
           json_pair->key_length = 4;
           parse_key(json_buffer,json_pair, "root");
+          json = json_object_create(arena);
+          json->objects.methods->insert(&json->objects, json_pair->key, json_pair->key_length, json_pair);
+          break;
         }
       }
       else if(current_character == '"' && json != NULL) {
@@ -151,11 +154,6 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
         json_buffer->current_position++;
         break;
       }
-      else if(current_character == ']' && json_pair->data_type == ARRAY && json == NULL) {
-        json = json_object_create(arena);
-        
-        json->objects.methods->insert(&json->objects, json_pair->key, json_pair->key_length, json_pair);
-      }
 
       json_buffer->current_position++;
     }
@@ -168,17 +166,18 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
 }
 
 void parse_key(JSONBuffer* json_buffer, JSONPair* current_json, char* optional_key) {
-  json_buffer->current_position++;
-  char current_character;
-  bool was_escaped = false;
-
+  
   if(optional_key != NULL) {
     for(size_t i = 0; i < current_json->key_length; i++) {
       current_json->key[i] = optional_key[i];
     }
     return;
   }
-  
+
+  json_buffer->current_position++;
+  char current_character;
+  bool was_escaped = false;
+
   while(true) {
     current_character = json_buffer->current_file[json_buffer->current_position];
   

@@ -1,6 +1,6 @@
 file_header = -isystem./include
-library_headers = -isystem../lib/include
-library_path = -L../lib
+library_headers = -isystem./lib/include
+library_path = -L./lib
 libraries = -lhashtable -larena -llinkedlist -lhash 
 base_flags = -Wall -pedantic -Werror -Wextra
 

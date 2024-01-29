@@ -13,6 +13,7 @@ JSONPair* json_pair_create(Arena* arena) {
   JSONPair* new_pair = arena->alloc(arena,sizeof(JSONPair));
   new_pair->current_value = false;
   new_pair->key_length = 0;
+  new_pair->value_exists = false;
   return new_pair;
 }
 
@@ -67,9 +68,6 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
         json_pair->value_exists = true;
         json_pair->current_value = false;
       }
-      else if(was_bracketed && !isspace(current_character) && current_character != '"' && current_character != '{' && current_character != '}') {
-        json_buffer->error = true;
-      }
       else if(current_character == '{') {
         if(json == NULL) {
           json = json_object_create(arena);
@@ -85,6 +83,7 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
       }
       else if(current_character == '[' && (json_pair->current_value || json == NULL)) {
         json_buffer->current_position++;
+        json_buffer->current_col++;
         json_pair->data.array = parse_array(json_buffer, arena);
 
         json_pair->data_type = ARRAY;
@@ -110,6 +109,11 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
           json_pair->data_type = STR;
           json_pair->value_exists = true;
           json_pair->current_value = false;
+        }
+        else if(json_pair->key_length > 0 && json_pair->value_exists) {
+          json_buffer->error = true;
+          json_buffer->error_message = "There needs to be a comma between JSON pairs";
+          break;
         }
       }
       else if(current_character == 't' && json != NULL) {
@@ -143,7 +147,8 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
         } 
         else {
           json_buffer->error = true;
-          continue;
+          json_buffer->error_message = "A comma should not be here";
+          break;
         }
       }
       else if(current_character == '}' && json != NULL) {
@@ -152,16 +157,42 @@ JSONObj* parse_json(JSONBuffer* json_buffer, Arena* arena) {
         }
         json->current_object = false;
         json_buffer->current_position++;
+        json_buffer->current_col++;
         break;
       }
+      else if(was_bracketed && !isspace(current_character)) {
+        json_buffer->error = true;
+        json_buffer->error_message = "JSON missing starting key";
+        break;
+      }
+      else if(json_pair->key_length > 0 && !json_pair->value_exists && !isspace(current_character)) {
+        json_buffer->error = true;
+        json_buffer->error_message = "JSON key not properly closed or not followed by :";
+        break;
+      }
+      else if(json_pair->value_exists && !isspace(current_character)) {
+        json_buffer->error = true;
+        json_buffer->error_message = "This value is either improperly formatted or misplaced";
+        break;
+      }
+      else if(current_character == '\n') {
+        json_buffer->current_position++;
+        json_buffer->current_col = 1;
+        json_buffer->current_row++;
+        continue;
+      }
 
-      json_buffer->current_position++;
+      if(!json_buffer->error) {
+        json_buffer->current_position++;
+        json_buffer->current_col++;
+      }
     }
     
-    if(json == NULL) {
+    if(json == NULL && !json_buffer->error) {
       json_buffer->error = true;
+      json_buffer->error_message = "No JSON detected in this buffer";
     }
-    
+
     return json;
 }
 
@@ -174,6 +205,7 @@ void parse_key(JSONBuffer* json_buffer, JSONPair* current_json, char* optional_k
     return;
   }
 
+  json_buffer->current_col++;
   json_buffer->current_position++;
   char current_character;
   bool was_escaped = false;
@@ -184,11 +216,13 @@ void parse_key(JSONBuffer* json_buffer, JSONPair* current_json, char* optional_k
 
     if(json_buffer->current_position + 1 == json_buffer->file_size) {
       json_buffer->error = true;
+      json_buffer->error_message = "JSON key not properly closed";
       return;
     }
     else if(isescaped(current_character) && !was_escaped) {
       if(current_character != '"') {
         json_buffer->error = true;
+        json_buffer->error_message = "Certain characters need to be escaped or key not closed";
         return;
       }
       else {
@@ -202,10 +236,14 @@ void parse_key(JSONBuffer* json_buffer, JSONPair* current_json, char* optional_k
     if(current_json->key_length < 256) {
       current_json->key[current_json->key_length] = current_character;
       current_json->key_length++;
+      
+
       json_buffer->current_position++;
+      json_buffer->current_col++;
     }
     else {
       json_buffer->error = true;
+      json_buffer->error_message = "JSON key can not exceed 256 characters";
       return;
     }
 
@@ -218,19 +256,23 @@ void parse_key(JSONBuffer* json_buffer, JSONPair* current_json, char* optional_k
 LinkedList* parse_string(JSONBuffer* json_buffer, Arena* arena) {
   
   json_buffer->current_position++; 
+  json_buffer->current_col++;
   LinkedList* string = linkedlist_create(arena);
   char current_character;
   bool was_escaped = false;
 
   while(true) {
     current_character = json_buffer->current_file[json_buffer->current_position];
+    
     if(json_buffer->current_position == json_buffer->file_size-1) {
       json_buffer->error = true;
+      json_buffer->error_message = "String not properly closed";
       return NULL;
     }
     else if(isescaped(current_character) && !was_escaped) {
       if(current_character != '"') {  
         json_buffer->error = true;
+        json_buffer->error_message = "Certain characters need to be escaped or string not closed";
         return NULL;
       }
       else {
@@ -251,6 +293,7 @@ LinkedList* parse_string(JSONBuffer* json_buffer, Arena* arena) {
     }
 
     json_buffer->current_position++;
+    json_buffer->current_col++;
   }
   
   return string;
@@ -262,10 +305,6 @@ JSONNum* parse_number(JSONBuffer* json_buffer, Arena* arena) {
   char current_character = json_buffer->current_file[json_buffer->current_position];
 
   while(isdigit(current_character) || isxdigit(current_character) || current_character == '.') {
-    if(json_buffer->current_position == json_buffer->file_size-1) {
-      json_buffer->error = true;
-      return NULL;
-    }
     
     if(number->length <= 64) {
       number->value[number->length] = current_character;
@@ -273,14 +312,17 @@ JSONNum* parse_number(JSONBuffer* json_buffer, Arena* arena) {
     }
     else {
       json_buffer->error = true;
+      json_buffer->error_message = "Non-number or incorrect delimiter in number";
       return NULL;
     }
     
     json_buffer->current_position++;
+    json_buffer->current_col++;
     current_character = json_buffer->current_file[json_buffer->current_position];
   }
   
   json_buffer->current_position--;
+  json_buffer->current_col--;
   return number;
 }
 
@@ -301,12 +343,7 @@ LinkedList* parse_array(JSONBuffer* json_buffer, Arena *arena) {
       break;
     }
 
-    if(json_buffer->current_position == json_buffer->file_size-1) {
-      json_buffer->error = true;
-      return NULL;
-    }
-
-    if(array->length == 0 || was_comma) { 
+    if((array->length == 0 || was_comma) && current_character != ',' && current_character != '\n') { 
       if(isdigit(current_character)) {
         array_member->data_type = NUM;
         array_member->data.num = parse_number(json_buffer, arena);
@@ -318,6 +355,7 @@ LinkedList* parse_array(JSONBuffer* json_buffer, Arena *arena) {
       else if(current_character == '[') {
         array_member->data_type = ARRAY;
         json_buffer->current_position++;
+        json_buffer->current_col++;
         array_member->data.array = parse_array(json_buffer, arena);
         array->methods->insert(array, array_member);
 
@@ -328,6 +366,7 @@ LinkedList* parse_array(JSONBuffer* json_buffer, Arena *arena) {
         array_member->data_type = JSON;
         array_member->data.json = parse_json(json_buffer,arena);
         array->methods->insert(array, array_member);
+        json_buffer->current_col--;
         json_buffer->current_position--;
 
         array_member = arena->alloc(arena, sizeof(ArrayData));
@@ -371,14 +410,23 @@ LinkedList* parse_array(JSONBuffer* json_buffer, Arena *arena) {
     }
     else if(current_character == ',' && array->length == 0) {
       json_buffer->error = true;
+      json_buffer->error_message = "Can not have comma in array before values";
       return NULL;
     }
     else if(!isspace(current_character)) {
       json_buffer->error = true;
+      json_buffer->error_message = "Comma missing between values in array";
       return NULL;
     }
-
+    else if(current_character == '\n') {
+      json_buffer->current_position++;
+      json_buffer->current_col = 1;
+      json_buffer->current_row++;
+      continue;
+    }
+    
     json_buffer->current_position++;
+    json_buffer->current_col++;
   }
 
   return array;
@@ -405,15 +453,18 @@ JSONBool* parse_bool(JSONBuffer* json_buffer, Arena* arena, char boolean_value[]
 
     if(current_character != boolean_value[i]) {
       json_buffer->error = true;
+      json_buffer->error_message = "Boolean value is likely misspelled";
       return NULL;
     }
 
     json_bool->parsed_value[i] = current_character;
 
     json_buffer->current_position++;
+    json_buffer->current_col++;
   }
 
   json_buffer->current_position--;
+  json_buffer->current_col--;
   return json_bool;
 }
 
@@ -426,13 +477,16 @@ void* parse_null(JSONBuffer* json_buffer, char* null_string) {
     
     if(current_character != null_string[i]) {
       json_buffer->error = true;
+      json_buffer->error_message = "Null value was likely misspelled";
       return NULL;
     }
     
   json_buffer->current_position++;
+  json_buffer->current_col++;
   }
 
   json_buffer->current_position--;
+  json_buffer->current_col--;
   return NULL;
 }
 

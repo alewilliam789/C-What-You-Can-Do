@@ -6,6 +6,7 @@
 #include "scanner.h"
 #include "hashtable.h"
 #include "linkedlist.h"
+#include "arena.h"
 
 typedef struct JSONNum JSONNum;
 typedef struct JSONString JSONString;

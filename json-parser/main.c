@@ -6,19 +6,23 @@
 
 int main(int argc, char** argv) {
 
-    FILE* current_file;
+  FILE* current_file;
 
-    current_file = fopen(argv[1], "r");
+  
+  
 
+  for(int i = 1; i < argc; i++) {
+
+    current_file = fopen(argv[i], "r");
+    
     if(current_file == NULL) {
-      return 1;
+      return 0;
     }
-
-    int result = json_scanner(current_file,argv[1]);
+    
+    json_scanner(current_file,argv[i]);
 
     fclose(current_file);
-
-
-    printf("%i",result);
-    return result;
+  }
+  
+  return 1;
 }

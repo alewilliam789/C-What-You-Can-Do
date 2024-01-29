@@ -2,7 +2,6 @@
 #include <sys/stat.h>
 #include "parser.h"
 #include "scanner.h"
-#include "arena.h"
 
 
 int json_scanner(FILE* json_file, char* file_path) {
@@ -37,6 +36,8 @@ int json_scanner(FILE* json_file, char* file_path) {
   JSONBuffer json_buffer;
   json_buffer.current_position = 0;
   json_buffer.file_size = st.st_size;
+  json_buffer.current_col = 1;
+  json_buffer.current_row = 1;
   json_buffer.error = false;
 
   size_t test = fread(buffer,st.st_size,1,json_file);
@@ -49,8 +50,11 @@ int json_scanner(FILE* json_file, char* file_path) {
   arena_destroy(&arena);
 
   if(json_buffer.error) {
+    printf("%s (row: %i, col: %i) \n",json_buffer.error_message, json_buffer.current_row, json_buffer.current_col);
     return 1;
   }
 
+  printf("This is valid JSON \n");
+  
   return 0;
 }

@@ -48,6 +48,21 @@ int main() {
 
   file_test(test_file,1);
 
+  // Can detect a file without any json
+  test_file = "tests/no-json-test.json";
+
+  file_test(test_file,1);
+
+  // Can detect an unclosed key
+  test_file = "tests/not-closed-key-test.json";
+
+  file_test(test_file,1);
+
+  // Can detect unclosed string
+  test_file = "tests/not-closed-string-test.json";
+
+  file_test(test_file,1);
+
   // Can detect faulty boolean data
   test_file = "tests/not-boolean-test.json";
 
@@ -58,13 +73,18 @@ int main() {
 
   file_test(test_file,1);
 
-  // Can handle incorrect nested json
+  // Can handle detect missing comma
   test_file = "tests/not-nested-test.json";
 
   file_test(test_file, 1);
 
-  // Can handle incorrect array in json
-  test_file = "tests/not-array-test.json";
+  // Can handle no comma array
+  test_file = "tests/no-comma-array-test.json";
+
+  file_test(test_file, 1);
+
+  // Can handle comma in the beginning of array
+  test_file = "tests/comma-without-value-array-test.json";
 
   file_test(test_file, 1);
 

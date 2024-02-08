@@ -1,8 +1,8 @@
-#include "include/server.h"
-
+#include "server.h"
+#include "handler.h"
 
 int main(void) {
-  
+
   int sockfd = start("3490",10);
 
   multiplexer(sockfd);

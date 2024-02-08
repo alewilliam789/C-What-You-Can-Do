@@ -1,11 +1,10 @@
-#include "include/request.h"
-#include "include/handler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/socket.h>
+#include "handler.h"
 
 
 
@@ -67,14 +66,26 @@ void parse_http_request(HTTPRequest* http) {
   http->route.length += 2;
 }
 
+int send_all(int response_socket, char* value, size_t length) {
+  int send_length = 0;
+
+  while((size_t)send_length < length) {
+    send_length = send(response_socket,value,length,0);
+
+    if(send_length == -1) {
+      return -1;
+    }
+  }
+  
+  return 1;
+}
+
 void process_request(int newfd) {
-  HTTPRequest http;
-  char header_message[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-  char request_response[200];
- 
+  HTTP http;
+
   while(true) {
     
-    int recv_length = recv(newfd,http.raw,9000,0);
+    int recv_length = recv(newfd,http.request.raw,9000,0);
     if(recv_length == 0 ) {
       break;
     }
@@ -83,19 +94,26 @@ void process_request(int newfd) {
       break;
     }
 
-    parse_http_request(&http);
+    parse_http_request(&http.request);
 
-    strcat(request_response, "Requested route: ");
-    strcat(request_response, http.route.value);
+    request_handler(&http, &wrangler); 
 
-    int len = http.route.length + 17;
+    int success;
 
-    int send_length = send(newfd,header_message,45, 0);
-    send_length = send(newfd,request_response,len,0);
-    if(send_length == -1) {
+    success = send_all(newfd,http.response.header.value,http.response.header.length);
+
+    if(success == -1) {
       perror("send");
       break;
     }
+
+    success = send_all(newfd,http.response.body.value,http.response.body.length);
+    
+    if(success == -1) {
+      perror("send");
+      break;
+    }
+
     break;
   }
 }

@@ -1,12 +1,12 @@
 base_flags = -Wall -Wextra -Werror -pedantic
-headers = -I./include
+headers = -isystem./include
 
 
 test : 
 	gcc $(headers) $(base_flags) -g test.c server.c request.c handler.c
 
-
-json : 
+json :
+	- rm compile_commands.json
 	bear -- make test
 	- rm a.out
 

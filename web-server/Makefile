@@ -3,7 +3,8 @@ headers = -isystem./include
 
 
 test : 
-	gcc $(headers) $(base_flags) -g test.c server.c request.c handler.c
+	gcc $(headers) $(base_flags) -g -c test.c server.c request.c handler.c builder.c
+	gcc -o a.out test.o server.o request.o handler.o builder.o
 
 json :
 	- rm compile_commands.json
@@ -13,5 +14,6 @@ json :
 debug : a.out
 	gdb a.out
 
-clean : a.out
+clean : 
+	-rm *.o
 	- rm a.out

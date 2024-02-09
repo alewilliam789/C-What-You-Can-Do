@@ -83,7 +83,7 @@ int start(char* port, int backlog) {
 }
 
 
-void multiplexer(int sockfd) {
+void multiplexer(int sockfd, RequestWrangler* request_wrangler) {
 
   int newfd;
   struct sockaddr_storage their_addr; 
@@ -99,7 +99,7 @@ void multiplexer(int sockfd) {
   }
 
   while(1) {
-    sin_size = sizeof their_addr;
+    sin_size = sizeof(their_addr);
     newfd = accept(sockfd, (struct sockaddr *)&their_addr, &sin_size);
     if (newfd == -1) {
         perror("accept");
@@ -108,7 +108,7 @@ void multiplexer(int sockfd) {
 
     if (!fork()) {
         close(sockfd);
-        process_request(newfd);
+        process_request(newfd, request_wrangler);
         close(newfd);
         exit(0);
     }

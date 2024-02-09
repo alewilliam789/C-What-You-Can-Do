@@ -2,11 +2,11 @@
 #define HTTP_H
 
 
-#include "stdlib.h"
+#include <stdlib.h>
+
 
 
 // Request Portion
-
 
 typedef struct RequestRoute RequestRoute;
 
@@ -43,9 +43,8 @@ struct HTTPRequest {
 };
 
 
+
 // Response Portion
-
-
 
 // Will add more later
 // Just trying to serve static HTML for now
@@ -66,12 +65,15 @@ enum ContentType {
 
 typedef enum ContentType ContentType;
 
+
+
 typedef struct ResponseHeader ResponseHeader;
 
 struct ResponseHeader {
   char value[500];
   size_t length;
 };
+
 
 typedef struct ResponseBody ResponseBody;
 
@@ -98,6 +100,44 @@ struct HTTP {
   HTTPResponse response;
 };
 
-void process_request(int newfd);
+
+
+// Handler Section
+
+typedef struct RequestHandler RequestHandler;
+
+struct RequestHandler {
+  char* request_path;
+  char* file_path;
+  char* alias;
+  void (*builder)(HTTP* http, RequestHandler* request_handler);
+  ContentType file_type; 
+};
+
+
+typedef struct RequestWrangler RequestWrangler;
+
+struct RequestWrangler {
+  RequestHandler* handlers;
+  size_t length;
+};
+
+
+// Server Functions
+
+
+int start(char* port, int backlog);
+
+void multiplexer(int sockfd, RequestWrangler* request_wrangler);
+
+
+// Request & Response Functions
+
+
+void process_request(int newfd, RequestWrangler* request_wrangler);
+
+void request_handler(HTTP* http, RequestWrangler* request_wrangler);
+
+void header_builder(HTTP* http, RequestHandler request_handler);
 
 #endif

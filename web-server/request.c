@@ -4,8 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/socket.h>
-#include "handler.h"
-
+#include "http.h"
 
 
 void parse_route(HTTPRequest* http) {
@@ -23,10 +22,10 @@ void parse_route(HTTPRequest* http) {
     else {
       return;
     }
-    
     http->current_position++;
   }
 }
+
 
 void parse_method(HTTPRequest* http) {
   char current_character;
@@ -43,6 +42,7 @@ void parse_method(HTTPRequest* http) {
     }
   } 
 }
+
 
 void parse_http_request(HTTPRequest* http) {
   char current_character = ' ';
@@ -62,9 +62,8 @@ void parse_http_request(HTTPRequest* http) {
     http->current_position++;
   }
   http->route.value[http->route.length] = '\0';
-  strcat(http->route.value, "\r\n");
-  http->route.length += 2;
 }
+
 
 int send_all(int response_socket, char* value, size_t length) {
   int send_length = 0;
@@ -80,7 +79,8 @@ int send_all(int response_socket, char* value, size_t length) {
   return 1;
 }
 
-void process_request(int newfd) {
+
+void process_request(int newfd, RequestWrangler* request_wrangler) {
   HTTP http;
 
   while(true) {
@@ -96,7 +96,7 @@ void process_request(int newfd) {
 
     parse_http_request(&http.request);
 
-    request_handler(&http, &wrangler); 
+    request_handler(&http, request_wrangler);
 
     int success;
 
@@ -107,13 +107,21 @@ void process_request(int newfd) {
       break;
     }
 
-    success = send_all(newfd,http.response.body.value,http.response.body.length);
-    
+    success = send_all(newfd,"\r\n",2);
+
     if(success == -1) {
       perror("send");
       break;
     }
 
+    success = send_all(newfd,http.response.body.value,http.response.body.length);
+
+    if(success == -1) {
+      perror("send");
+      break;
+    }
+   
+    free(http.response.body.value);
     break;
   }
 }
